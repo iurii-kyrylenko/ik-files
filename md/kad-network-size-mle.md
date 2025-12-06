@@ -10,6 +10,7 @@ The lookup (often informally referred to as "k-lookup") is the primary and most 
 Using the same model as in [2], the current work considers Maximum Likelihood Estimation (MLE) [4]. The MLE is generally preferred over MoM because it produces more efficient, consistent, and often unbiased estimators with stronger theoretical properties. MLE requires no heuristic assumption and can be derived directly from join Probability Distribution Function (PDF) of distances from N parallel k-lookups. The join PDF also allows to get the Craner-Rao bound [5] for minimal variance of the efficient estimator.
 
 The main results of works are:
+
 - the MLE estimator (3) which uses average of logarithms of XOR distances from $N$ random $k$-lookups;
 - the Craner-Rao bound (4) for minimal variance of the efficient estimator and its approximations (6-7);
 - illustration of efficiency of the MLE estimator by results of computer simulation.
@@ -58,6 +59,7 @@ where the observation $u_i$ is the $k$-th smallest normalized distance from $i$-
 ### 5. Maximum Likelihood Estimate
 
 The MLE estimator $\hat n$ maximizes (2). It means that $\hat n$ is an integer at which the likelihood sequence $L(n)$ stops increasing and starts decreasing. To find it, consider the ratio function $G(n) = L(n) / L(n - 1)$ and conditions the $\hat n$ conforms to:
+
 1. The likelihood is increasing up to $\hat n$: $G(\hat n) \ge 1$. 
 2. The likelihood starts decreasing after $\hat n$: $G(\hat n + 1) < 1$.
 
@@ -81,6 +83,7 @@ $$
 $$
 
 Algorithmically, the estimator (3) performs following steps:
+
 1. For each lookup, consisted of k smallest distances to random targets:
    - select the maximal distance $d_i$;
    - calculate logarithmic metric $ln(1-u_i)$ for the normalized distance $u_i = d_i/(2^L-1)$.
@@ -153,14 +156,14 @@ $$
 
 The [simulation](https://github.com/iurii-kyrylenko/mainline) [8] was performed to compare precision of the MLE estimator (3) with the theoretical low bound (6). We process 10,000 estimations for each combination of parameters $k = {8, 20}, N = {10, 20, 40}$ and network sizes $n = {25, 10^2, 10^3, 10^4, 10^5}$. Each estimation receives $N$ statistics of $k$-th order from $n$ independent random variables uniformly distributed on $(0, 1)$. The normalized errors then used to calculate the sample variance $\sigma^2$ which is the subject of comparison with the theoretical low bound $\sigma_{min}^2$ (6).
 
-The simulation results also include standard deviation $\sigma = \sqrt {\sigma^2}$ and the sample mean (a bias of the estimate). The results show that the bias is much smaller than standard deviation, especially if $k$ is small relative to $n$.
+![](https://ik-files.onrender.com/results.png) *Figure 1: Standard deviation of MLE estimate in comparison with theretical low bound*
 
-![Figure 1](https://ik-files.onrender.com/results.png)
+The solid curves in Figure 1 show the theoretical low bounds for standard deviation $\sigma_{min}$. They are plotted according to (6) as function of network size. The simulation results, related to the sample deviation $\sigma$, are shown as points for fixed network sizes. The results prove the efficency of the MLE estimate. For the worse case ($k=8, N=10, n=25$) the MLE deviation (10%) differs in less than 1% from the low bound. At increasing $k$ and $N$ the estimate precision and low bound are practically indistinguishable. For combination ($k=20, N=40, n=25$) the MLE deviation (1.7%) differs in less than 0.01% from the low bound.
 
-The solid curves in Fig.1 represent the theoretical low bounds for standard deviation. They are plotted according to (6) as function of network size. The simulation results, related to the sample variance, are shown as points for fixed network sizes. The results prove the efficency of the MLE estimate. For the worse case ($k=8, N=10, n=25$) the MLE deviation (10%) differs in less than 1% from the low bound. At increasing $k$ and $N$ the estimate precision and low bound are practically indistinguishable. For combination ($k=20, N=40, n=25$) the MLE deviation (1.7%) differs in less than 0.01% from the low bound.
-
-### 8. Conclusion6
+### 8. Conclusion
 ..todo
 
 ### 9. Appendix. Joint PDF of the first k order statistics from a sample of size n
 ..todo
+
+### 10. References
