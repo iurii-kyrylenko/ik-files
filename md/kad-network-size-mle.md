@@ -1,18 +1,20 @@
-## Maximum Likelihood Estimation of Network Size by N Parallel k-lookups in Kademlia DHT
-
-### Abstract
-..todo
+---
+title: "Maximum Likelihood Estimation of Network Size by N Parallel k-lookups in Kademlia DHT"
+author: "Iurii Kyrylenko, yuriproject@gmail.com"
+abstract: |
+  Derived the optimal Maximum Likelihood Estimator for a number of nodes in Kademlia-style DHTs. Shown that the estimator averages logarithmic distances of farthests nodes returned from several lookups. Found the Cramér-Rao bound for the efficient estimator. Proved the asymptotic efficiency of the estimator by statistical simulation.
+---
 
 ### 1. Intro
 
 The lookup (often informally referred to as "k-lookup") is the primary and most crucial function in the Kademlia peer-to-peer distributed hash table (DHT) protocol [1]. It is a recursive, iterative algorithm designed to locate the $k$ closest nodes to a specific target ID within the network. The final set of $k$ closest nodes found has XOR distances that are minimized within the network, and the magnitude of these distances is related to the density of nodes, which itself depends on network size $n$. It's clear that performing several lookups to random $N$ targets nodes we get more information about anticipated network size. A method of estimation $n$ by processing $N$ parallel k-lookups is proposed in [2]. It's based on the fact that distances in each ordered set of k-lookup is the order statistics with specific beta distributions which depends on $n$. Then according to the method of moments (MoM) [3] the estimator for $n$ is obtained by matching expected value of beta distribution with empirical result by averaging distances from lookup data. The suggested estimator is great from a practical point, however some aspects of provided solution are heuristic, e.g. the ways of averaging sample data. It's also hard to make assumptions on efficiency of the MoM estimator, because there is no way of gettins theoretical minimum variance for any unbiased estimator.
 
-Using the same model as in [2], the current work considers Maximum Likelihood Estimation (MLE) [4]. The MLE is generally preferred over MoM because it produces more efficient, consistent, and often unbiased estimators with stronger theoretical properties. MLE requires no heuristic assumption and can be derived directly from join Probability Distribution Function (PDF) of distances from N parallel k-lookups. The join PDF also allows to get the Craner-Rao bound [5] for minimal variance of the efficient estimator.
+Using the same model as in [2], the current work considers Maximum Likelihood Estimation (MLE) [4]. The MLE is generally preferred over MoM because it produces more efficient, consistent, and often unbiased estimators with stronger theoretical properties. MLE requires no heuristic assumption and can be derived directly from join Probability Distribution Function (PDF) of distances from N parallel k-lookups. The join PDF also allows to get the Cramér-Rao bound [5] for minimal variance of the efficient estimator.
 
 The main results of works are:
 
-- the MLE estimator (3) which uses average of logarithms of XOR distances from $N$ random $k$-lookups;
-- the Craner-Rao bound (4) for minimal variance of the efficient estimator and its approximations (6-7);
+- the MLE estimator (3) which uses average of logarithms of normalized distances from $N$ random $k$-lookups;
+- the Cramér–Rao bound (4) for minimal variance of the efficient estimator and its approximations (6-7);
 - illustration of efficiency of the MLE estimator by results of computer simulation.
 
 ### 2. Model
@@ -31,11 +33,11 @@ For a single lookup the likelihood function (LF) is the joint PDF of the first $
 
 $$
 f_{U_{(1)}, \dots, U_{(k)}}(u_1, \dots, u_k \mid n) = \frac{n!}{(n-k)!} (1 - u_k)^{n-k},
-\quad \text{for } 0 < u_1 < \dots < u_k < 1
+\ \text{for } 0 < u_1 < \dots < u_k < 1
 \tag{1}
 $$
 
-We derive this later, but notice an important fact now: The optimal ML estimate of $n$ can be obtained by taking into account only $k$-th order statistics. The statistics up to k are irrelevant to the estimate. In other words, **to estimate the network size only the last k-th distance in ordered lookup results is sufficient**.
+We derive this later, but notice an important fact now: The optimal ML estimate of $n$ can be obtained by taking into account only $k$-th order statistics. The statistics up to $k$ are irrelevant to the estimate. In other words, **to estimate the network size only the last k-th distance in ordered lookup results is sufficient**.
 
 This conclusion can be generalized for the optimal Bayesian estimator, because the LF as a part of posterior distribution is the only place which captures the observation.
 
@@ -152,18 +154,39 @@ $$
 \tag {7}
 $$
 
-### 7. Results of computer simulation
+### 7. Results of statistical simulation
 
 The [simulation](https://github.com/iurii-kyrylenko/mainline) [8] was performed to compare precision of the MLE estimator (3) with the theoretical low bound (6). We process 10,000 estimations for each combination of parameters $k = {8, 20}, N = {10, 20, 40}$ and network sizes $n = {25, 10^2, 10^3, 10^4, 10^5}$. Each estimation receives $N$ statistics of $k$-th order from $n$ independent random variables uniformly distributed on $(0, 1)$. The normalized errors then used to calculate the sample variance $\sigma^2$ which is the subject of comparison with the theoretical low bound $\sigma_{min}^2$ (6).
 
-![](https://ik-files.onrender.com/results.png) *Figure 1: Standard deviation of MLE estimate in comparison with theretical low bound*
+| $(N,\ k)\ \backslash \ n$ | $n=25$ | $n=10^2$ | $n=10^3$ | $n=10^4$ | $n=10^5$ |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+$(10,\ 8)$ | $0.09724$ | $0.11158$ | $0.11468$ | $0.11453$ | $0.11422$
+$(20,\ 8)$ | $0.06723$ | $0.07773$ | $0.07973$ | $0.07961$ | $0.08027$
+$(40,\ 8)$ | $0.04753$ | $0.05410$ | $0.05613$ | $0.05646$ | $0.05632$
+$(10,\ 20)$ | $0.03412$ | $0.06502$ | $0.07056$ | $0.07106$ | $0.07159$
+$(20,\ 20)$ | $0.02405$ | $0.04552$ | $0.04952$ | $0.04966$ | $0.05000$
+$(40,\ 20)$ | $0.01655$ | $0.03180$ | $0.03563$ | $0.03526$ | $0.03538$
+
+: Simulation results for standard deviation $\sigma$ of MLE
+
+![Standard deviation of MLE estimate in comparison with theretical low bound](results.png) 
 
 The solid curves in Figure 1 show the theoretical low bounds for standard deviation $\sigma_{min}$. They are plotted according to (6) as function of network size. The simulation results, related to the sample deviation $\sigma$, are shown as points for fixed network sizes. The results prove the efficency of the MLE estimate. For the worse case ($k=8, N=10, n=25$) the MLE deviation (10%) differs in less than 1% from the low bound. At increasing $k$ and $N$ the estimate precision and low bound are practically indistinguishable. For combination ($k=20, N=40, n=25$) the MLE deviation (1.7%) differs in less than 0.01% from the low bound.
 
 ### 8. Conclusion
-..todo
+
+The optimal MLE estimator differs from the estimator, obtained in [2] by two significant aspects:
+
+1. Only the maximal distances (i.e. statistics of order $k$) are used from results of N k-lookups (sets of nodes, closest to random targets). The statistics up to $k$ are irrelevant to the estimate. We can observe the minimax principle here.
+2. The logarithims of normalized distances $\ln (1-u_i$) (not the distances $u_i$ directly) are used in calculation of the sample mean to get the grouped observation.
+
+In practice when network size $n$ is larger than $k$ the normalized variance of efficent MLE is mainly determined by the values $N$ and $k$ (inversely proportional to), rather than $n$. Maximum of the CRLB low bound is reached at big $n$, i.e. the minimax principle is observed again.
+
+The results of statistical simulation prove the efficency of the MLE estimate. For $k=8, 20$, $N \ge 10$ and $n > 100$ the variance of the MLE and the theoretical low bound are practically indistinguishable.
+
 
 ### 9. Appendix. Joint PDF of the first k order statistics from a sample of size n
 ..todo
 
 ### 10. References
+..todo
